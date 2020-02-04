@@ -14,8 +14,6 @@ import {
   TextInput
 } from 'react-native';
 
-import ViaCep from 'react-via-cep';
-
 import {
   Header,
   LearnMoreLinks,
