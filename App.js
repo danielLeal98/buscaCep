@@ -28,7 +28,7 @@ export default class App extends Component {
 
   constructor(props){
         super(props);
-        this.state = {text: '', cep: '', localidade: '', uf: '', logradouro: '', bairro: ''};
+        this.state = {cep: '', localidade: '', uf: '', logradouro: '', bairro: ''};
         this.filterText = this.filterText.bind(this);
         this.capturaCep = this.capturaCep.bind(this);
         this.limparDados = this.limparDados.bind(this);        
@@ -36,12 +36,15 @@ export default class App extends Component {
 
     filterText(text) {
       this.setState({
-          text: text.replace(/([^\d\s/-])/g, '')
+        cep: text.replace(/([^\d\s/-])/g, '')
       });
     }
 
-  capturaCep(){           
-    fetch(`https://viacep.com.br/ws/${this.state.text}/json/`)    
+  capturaCep(){        
+    if (this.state.cep.length < 8) {      
+      Alert.alert("Atenção", "Digite um CEP válido");
+    } else {         
+        fetch(`https://viacep.com.br/ws/${this.state.cep}/json/`)    
           .then((r)=>r.json())
           .then((json)=>{
             let s = this.state;
@@ -52,11 +55,11 @@ export default class App extends Component {
             s.bairro = json.bairro;
             this.setState(s);            
           });
+        }
   }
 
   limparDados(){
-    let s = this.state;
-    s.text = '';
+    let s = this.state;    
     s.cep = '';
     s.localidade = '';
     s.uf = '';
@@ -73,7 +76,7 @@ export default class App extends Component {
           <Text style={styles.sectionTitle}>Busca Cep</Text>              
         </View>      
         <View style={styles.sectionContainer}>
-          <TextInput style={styles.textInputStyle}  onChangeText={this.filterText} value={this.state.text} placeholder="Insira o CEP desejado" placeholderTextColor="#121111"/>  
+          <TextInput style={styles.textInputStyle}  onChangeText={this.filterText} value={this.state.cep} placeholder="Insira o CEP desejado" placeholderTextColor="#121111"/>  
         </View>  
         <View style={styles.sectionContainer}>  
         <Button title="Buscar" style={styles.button} accessibilityLabel="Buscar" onPress={this.capturaCep} color="#5cb85c"/>              
@@ -129,7 +132,9 @@ const styles = StyleSheet.create({
   },
   infoEndereco: {            
     alignItems:'center',
-    marginTop: 40
+    marginTop: 40,
+    marginLeft: 10,
+    marginRight:10
   },
   viewBotao: {
     flexDirection: 'row',
