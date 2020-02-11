@@ -3,5 +3,6 @@ Aplicação que realiza busca de informações do endereço pelo CEP consumindo 
 
 Para instalar o Projeto rode os seguintes comandos:
 
-1 - npm i react-native-power-translator --save "Para instalar a Api do Power Translater"
-2 - npm install
+1. npm i react-native-power-translator --save "Para instalar a Api do Power Translater"
+
+2. npm install
