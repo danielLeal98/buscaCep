@@ -1,15 +1,8 @@
 import React, { Component } from 'react';
-import {StyleSheet,View,Text} from 'react-native';
+import {StyleSheet,View,Text,AsyncStorage} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 export default class Maps extends Component {
 
-  static navigationOptions = {
-    title: 'Maps',
-    header: null,
-    headerTitleStyle: {  
-      fontWeight: 'bold',  
-    }, 
-  }
     constructor(props){
       super(props);
       this.state ={
@@ -18,21 +11,32 @@ export default class Maps extends Component {
       };                        
     }
 
-    render(){     
-        return (            
-          <View style={styles.body}>                      
+     async getCoord (lat, lon) {      
+      try {
+        const lat = await AsyncStorage.getItem('latitude') || 'none';
+        const lon = await AsyncStorage.getItem('longitude') || 'none';                       
+        this.setState({longitude: lon, latitude: lat});
+      } catch (error) {        
+        console.log('Error ao pegar os dados' + error);
+      }
+    }
+
+    render(){   
+      this.getCoord();
+        return (
+          <View style={styles.body}>                           
           <MapView
-            style={styles.map}
+            style={styles.map} zoomEnabled={true} showsUserLocation={true}
             initialRegion={{
-              latitude: -22.76,
-              longitude: -43.4,
-              latitudeDelta: 0,
-              longitudeDelta: 0.05,
+              latitude: Number(this.state.latitude),
+              longitude: Number(this.state.longitude),
+              latitudeDelta: 0.003,
+              longitudeDelta: 0.003,
             }}>
             <Marker
               coordinate={{
-                latitude: -22.76,
-                longitude: -43.4
+                latitude: Number(this.state.latitude),
+                longitude: Number(this.state.longitude)
               }}
               title="Local da sua busca"
               description="Seu local solicitado"

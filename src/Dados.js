@@ -1,30 +1,7 @@
 import React, { Component } from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  ImageBackground,
-  Button,
-  Alert,
-  Image,
-  TouchableOpacity,
-  TextInput
-} from 'react-native';
-
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-import MapView, {Marker} from 'react-native-maps';
+import {StyleSheet,View,Text,ImageBackground,Button,Alert,Image,TouchableOpacity,TextInput,AsyncStorage} from 'react-native';
 
 export default class Dados extends Component {
-
   constructor(props){
         super(props);
         this.state = {cep: '', localidade: '', uf: '', logradouro: '', bairro: '',
@@ -34,6 +11,7 @@ export default class Dados extends Component {
         this.limparDados = this.limparDados.bind(this);  
         this.capturaTemp = this.capturaTemp.bind(this); 
         this.capturaMap = this.capturaMap.bind(this);
+        this.chamaMapa = this.chamaMapa.bind(this);
     }
 
     filterText(text) {
@@ -89,7 +67,7 @@ export default class Dados extends Component {
           });                            
         }
   }
- 
+
   capturaTemp(localidade, cidade){
     const apiKey = "8ddceeacaf8b95fe943c88fc8389dee0";           
     const url =`http://api.openweathermap.org/data/2.5/weather?q=${localidade},${cidade}&appid=${apiKey}&units=metric`;        
@@ -105,23 +83,49 @@ export default class Dados extends Component {
       s.latitude = json.coord.lat;      
       s.longitude = json.coord.lon;
       //console.log(json);
-      this.setState(s);            
+      this.setState(s); 
+      this.capturaMap(this.state.logradouro.replace(' ','+'), this.state.localidade.replace(' ','+'));           
     });
   }
 
-  limparDados(){
-    let s = this.state;    
-    s.cep = '';
-    s.localidade = '';
-    s.uf = '';
-    s.logradouro = '';
-    s.bairro = ''
-    s.mensagem = '';
-    s.loading = true;
-    this.setState(s);
+  async limparDados(){
+    try {
+      let s = this.state;    
+      s.cep = '';
+      s.localidade = '';
+      s.uf = '';
+      s.logradouro = '';
+      s.bairro = ''
+      s.mensagem = '';
+      s.loading = true;
+      this.setState(s);
+      await AsyncStorage.clear();
+    } catch (e) {
+      alert('Failed to clear the async storage.')
+    }
   }
 
-  capturaMap(){
+  capturaMap(localidade, logradouro){
+    const url =`https://locationiq.org/v1/search.php?key=50e80f5c1c3072&q=${localidade}+${logradouro}&format=json`;
+    fetch(url)     
+    .then((r)=>r.json())
+    .then((json)=>{ 
+      let lat = json[0].lat
+      let lon = json[0].lon;
+     this.saveCoord(lat,lon);     
+    });        
+  }
+
+  async saveCoord (lat, lon) {
+    try {
+      await AsyncStorage.setItem('latitude', lat)
+      await AsyncStorage.setItem('longitude', lon)
+    } catch (error) {
+      console.log('Error saving data' + error);
+    }
+  }
+
+  chamaMapa(){
     this.props.navigation.navigate('Maps',{
       longitude: this.state.longitude,
       latitude: this.state.latitude
@@ -175,7 +179,7 @@ export default class Dados extends Component {
         <View style={styles.viewBotao}>
           <Button title="Limpar" onPress={this.limparDados} color="#ff3232"/>      
           <Button title="Salvar" onPress={() => Alert.alert('Salvar Consulta')}   color="#5cb85c"/>                      
-          <TouchableOpacity onPress={this.capturaMap}>
+          <TouchableOpacity onPress={this.chamaMapa}>
             <Image source={require('../../buscaCep/imagens/google-maps.png')} style={styles.imagemMaps}/>
           </TouchableOpacity>
         </View> 
