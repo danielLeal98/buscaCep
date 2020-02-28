@@ -1,21 +1,12 @@
-import * as React from 'react';
-import { View, Text } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import Maps from './src/Maps';
-import Dados from './src/Dados';
+import React, { Component } from 'react'
+import { Text, View, StatusBar } from 'react-native'
+import Routes from './src/routes';
 
-const Stack = createStackNavigator();
-
-function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Dados" component={Dados} />
-        <Stack.Screen name="Maps" component={Maps} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+export default class App extends Component {
+    render() {      
+        return (              
+               <Routes />
+                   
+        )
+    }
 }
-
-export default App;
